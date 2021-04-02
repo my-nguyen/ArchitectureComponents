@@ -10,7 +10,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 @Database(entities = [Note::class], version = 1)
 abstract class NoteDatabase: RoomDatabase() {
     companion object {
-        private lateinit var instance: NoteDatabase
+        private var instance: NoteDatabase?=null
         private val callback: RoomDatabase.Callback
 
         init {
@@ -18,7 +18,7 @@ abstract class NoteDatabase: RoomDatabase() {
                 override fun onCreate(db: SupportSQLiteDatabase) {
                     super.onCreate(db)
 
-                    PopulateAsyncTask(instance).execute()
+                    PopulateAsyncTask(instance!!).execute()
                 }
             }
         }
@@ -29,7 +29,7 @@ abstract class NoteDatabase: RoomDatabase() {
                     .addCallback(callback)
                     .build()
             }
-            return instance
+            return instance!!
         }
     }
 
