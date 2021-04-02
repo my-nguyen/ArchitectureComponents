@@ -45,8 +45,9 @@ class MainActivity : AppCompatActivity() {
         noteViewModel = ViewModelProvider(this, noteViewModelFactory).get(NoteViewModel::class.java)
         noteViewModel.getAll().observe(this, {
             // update RecyclerView
-            noteAdapter.notes = it
-            noteAdapter.notifyDataSetChanged()
+            /*noteAdapter.notes = it
+            noteAdapter.notifyDataSetChanged()*/
+            noteAdapter.submitList(it)
         })
 
         noteAdapter.setOnItemClickListener(object : NoteAdapter.OnItemClickListener {
@@ -74,7 +75,7 @@ class MainActivity : AppCompatActivity() {
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.adapterPosition
-                val note = noteAdapter.notes[position]
+                val note = noteAdapter.getItem(position)
                 noteViewModel.delete(note)
 
                 Toast.makeText(this@MainActivity, "Note deleted", Toast.LENGTH_SHORT).show()
