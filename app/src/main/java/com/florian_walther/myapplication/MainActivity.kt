@@ -1,13 +1,20 @@
 package com.florian_walther.myapplication
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.florian_walther.myapplication.AddNoteActivity.Companion.EXTRA_DESCRIPTION
+import com.florian_walther.myapplication.AddNoteActivity.Companion.EXTRA_PRIORITY
+import com.florian_walther.myapplication.AddNoteActivity.Companion.EXTRA_TITLE
 import com.florian_walther.myapplication.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        const val RC_ADD_NOTE = 1
+    }
 
     private lateinit var noteViewModelFactory: NoteViewModelFactory
     private lateinit var noteViewModel: NoteViewModel
@@ -23,6 +30,10 @@ class MainActivity : AppCompatActivity() {
             setHasFixedSize(true)
             adapter = noteAdapter
         }
+        binding.fabAddNote.setOnClickListener {
+            val intent = Intent(this, AddNoteActivity::class.java)
+            startActivityForResult(intent, RC_ADD_NOTE)
+        }
 
         noteViewModelFactory = NoteViewModelFactory(application)
         noteViewModel = ViewModelProvider(this, noteViewModelFactory).get(NoteViewModel::class.java)
@@ -30,5 +41,24 @@ class MainActivity : AppCompatActivity() {
             // update RecyclerView
             noteAdapter.setNotes(it)
         })
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == RC_ADD_NOTE && resultCode == RESULT_OK) {
+            data?.let {
+                val title = it.getStringExtra(EXTRA_TITLE)
+                val description = it.getStringExtra(EXTRA_DESCRIPTION)
+                val priority = it.getIntExtra(EXTRA_PRIORITY, 1)
+
+                val note = Note(title!!, description!!, priority)
+                noteViewModel.insert(note)
+
+                Toast.makeText(this, "Note saved", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(this, "Note note saved", Toast.LENGTH_SHORT).show()
+        }
     }
 }
